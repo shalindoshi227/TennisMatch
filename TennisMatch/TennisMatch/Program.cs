@@ -10,6 +10,11 @@ namespace TennisMatch
     {
         static void Main(string[] args)
         {
+            //Setup the Players playing a game of tennis
+            Player playerOne = new Player("Nadal");
+            Player playerTwo = new Player("Djokovic");
+
+
         }
     }
 }
