@@ -13,7 +13,8 @@ namespace TennisMatch
             //Setup the Players playing a game of tennis
             Player playerOne = new Player("Nadal");
             Player playerTwo = new Player("Djokovic");
-            MatchRunner matchRunner = new MatchRunner(playerOne, playerTwo);
+            ScoreKeeper scoreKeeper = new ScoreKeeper(playerOne, playerTwo);
+            MatchRunner matchRunner = new MatchRunner(playerOne, playerTwo, scoreKeeper);
             matchRunner.Begin();
             Console.WriteLine("Press any key to stop...");
             Console.ReadKey();

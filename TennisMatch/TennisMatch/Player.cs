@@ -10,7 +10,7 @@ namespace TennisMatch
     {
         public string DisplayName { get; set; }
 
-        public Score Score { get; set; }
+        //public Score Score { get; set; }
 
         public string WinStatus { get; set; }
 
@@ -19,7 +19,7 @@ namespace TennisMatch
                 throw new ArgumentNullException("Player Names must have a value");
             }
             this.DisplayName= displayName;
-            Score = new Score();
+            //Score = new Score();
         }
     }
 }

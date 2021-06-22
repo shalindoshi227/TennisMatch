@@ -8,27 +8,29 @@ namespace TennisMatchTest
         private MatchRunner _matchRunner;
         private Player playerOne;
         private Player playerTwo;
+        private ScoreKeeper scoreKeeper;
         [SetUp]
         public void Setup()
         {
             //Setup the Players playing a game of tennis
             playerOne = new Player("Nadal");
             playerTwo = new Player("Djokovic");
-            _matchRunner = new MatchRunner(playerOne,playerTwo);            
+            scoreKeeper = new ScoreKeeper(playerOne, playerTwo);
+            _matchRunner = new MatchRunner(playerOne,playerTwo, scoreKeeper);            
         }
 
         [Test]
         public void can_play_game()
         {
             _matchRunner.PlayGame();
-            Assert.IsTrue((playerOne.Score.SetScore>0)||(playerTwo.Score.SetScore>0));
+            Assert.IsTrue((scoreKeeper.SetScore[playerOne]>0)||(scoreKeeper.SetScore[playerTwo]>0));
         }
 
         [Test]
         public void can_play_set()
         {
             _matchRunner.PlaySet();
-            Assert.IsTrue((playerOne.Score.MatchScore > 0) || (playerTwo.Score.MatchScore > 0));
+            Assert.IsTrue((scoreKeeper.MatchScore[playerOne] > 0) || (scoreKeeper.MatchScore[playerTwo] > 0));
         }
 
         [Test]
@@ -36,6 +38,10 @@ namespace TennisMatchTest
         {
             _matchRunner.Begin();
             Assert.IsTrue(playerOne.WinStatus == "Wins" || playerTwo.WinStatus == "Wins");
+        }
+        [Test]
+        public void can_return_correct_points() {
+            Assert.AreEqual(_matchRunner.getGameScore(3, 0), "P1: Forty P2: Love");
         }
     }
 }

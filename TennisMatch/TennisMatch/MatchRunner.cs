@@ -10,92 +10,149 @@ namespace TennisMatch
     {
         private Player _playerOne;
         private Player _playerTwo;
-        public MatchRunner(Player playerOne, Player playerTwo) {
+        private ScoreKeeper _scoreKeeper;
+        private List<string> setScores;
+        public MatchRunner(Player playerOne, Player playerTwo, ScoreKeeper scoreKeeper) {
             _playerOne = playerOne;
             _playerTwo = playerTwo;
+            _scoreKeeper = scoreKeeper;
+            setScores = new List<string>();
         }
 
         public void Begin() {
-            //Starts a Match which starts a Set which starts a Game
             PlayMatch();
+            PrintResult();
+        }
 
+        private void PrintResult()
+        {
+            Console.WriteLine("{0,-20} {1,5}\n", "Set Number", "Score");
+            for (int x = 0; x < setScores.Count; x++)
+                Console.WriteLine("{0,-20} {1,5:N1}", x, setScores[x]);
         }
 
         public void PlayMatch()
         {
             //Method plays a Match, playing Sets until a player has won 2
-            while (true)
+            string whoIsMatchWinner = "";
+            do
             {
-                Console.WriteLine("Player One has won : " + _playerOne.Score.MatchScore + " Sets");
-                Console.WriteLine("Player Two has won : " + _playerTwo.Score.MatchScore + " Sets");
                 PlaySet();
-                string whoIsMatchWinner = checkForMatchWinner();
-                if (!string.IsNullOrWhiteSpace(whoIsMatchWinner))
-                {
-                    //If there is a winner then write out winner
-                    bool isPlayerOneWinner = _playerOne.Score.MatchScore > _playerTwo.Score.MatchScore;
-                    _playerOne.WinStatus = isPlayerOneWinner ? "Wins" : "Loses";
-                    _playerTwo.WinStatus = !isPlayerOneWinner ? "Wins" : "Loses";
-                    Console.WriteLine("Match Score is: P1- " + _playerOne.Score.MatchScore + " ~~~~~  P2- " + _playerTwo.Score.MatchScore);
-                    Console.WriteLine("Match Winner is: " + (isPlayerOneWinner ? _playerOne.DisplayName : _playerTwo.DisplayName));
-                    break;
-                }
+                whoIsMatchWinner = checkForMatchWinner();
             }
+            while (string.IsNullOrWhiteSpace(whoIsMatchWinner));
+                
+            //If there is a winner then write out winner
+            bool isPlayerOneWinner = _scoreKeeper.MatchScore[_playerOne] > _scoreKeeper.MatchScore[_playerTwo];
+            _playerOne.WinStatus = isPlayerOneWinner ? "Wins" : "Loses";
+            _playerTwo.WinStatus = !isPlayerOneWinner ? "Wins" : "Loses";
+            Console.WriteLine("Match Winner is: " + (isPlayerOneWinner ? _playerOne.DisplayName : _playerTwo.DisplayName));
+            
+                
         }
 
         public void PlaySet() {
             //Method plays a Set, playing Games until a set is won
-            while (true) {
-                Console.WriteLine("Player One has won: " + _playerOne.Score.SetScore + " Games");
-                Console.WriteLine("Player Two has won: " + _playerTwo.Score.SetScore + " Games");
+            string whoIsSetWinner = "";
+            do
+            {
                 PlayGame();
-                string whoIsSetWinner = checkForSetWinner();
-                if (!string.IsNullOrWhiteSpace(whoIsSetWinner)) {
-                    //Write out winner, clear set scores and break
-                    //If there is a winner then write out winner, clear the Game Scores and break
-                    bool isPlayerOneWinner = _playerOne.Score.SetScore > _playerTwo.Score.SetScore;
-                    _ = isPlayerOneWinner ? _playerOne.Score.MatchScore++ : _playerTwo.Score.MatchScore++;
-                    Console.WriteLine("Set Score is: P1- " + _playerOne.Score.SetScore + " ~~~~~  P2- " + _playerTwo.Score.SetScore);
-                    Console.WriteLine("Match Score is: P1- " + _playerOne.Score.MatchScore + " ~~~~~  P2- " + _playerTwo.Score.MatchScore);
-                    _playerOne.Score.SetScore = 0;
-                    _playerTwo.Score.SetScore = 0;
-                    Console.WriteLine("Set Winner is: " + (isPlayerOneWinner ? _playerOne.DisplayName : _playerTwo.DisplayName));
-                    break;
-                }
+                whoIsSetWinner = checkForSetWinner();
             }
+            while (string.IsNullOrWhiteSpace(whoIsSetWinner));
+                //If there is a winner then write out winner, clear the Game Scores and break
+                    
+                bool isPlayerOneWinner = _scoreKeeper.SetScore[_playerOne] > _scoreKeeper.SetScore[_playerTwo];
+                _ = isPlayerOneWinner ? _scoreKeeper.MatchScore[_playerOne]++ : _scoreKeeper.MatchScore[_playerTwo]++;
+                string setWinner = isPlayerOneWinner? "P1 Won " + _scoreKeeper.SetScore[_playerOne] +" - "+ _scoreKeeper.SetScore[_playerTwo]: "P2 Won " + _scoreKeeper.SetScore[_playerOne] + " - " + _scoreKeeper.SetScore[_playerTwo];
+                Console.WriteLine(setWinner);
+                 setScores.Add(_scoreKeeper.SetScore[_playerOne] + " - " + _scoreKeeper.SetScore[_playerTwo]);
+                _scoreKeeper.SetScore[_playerOne] = 0;
+                _scoreKeeper.SetScore[_playerTwo] = 0;
+                Console.WriteLine("Set Winner is: " + (isPlayerOneWinner ? _playerOne.DisplayName : _playerTwo.DisplayName));
+                    
+                
+       
         }
 
-        
+        public string getGameScore(int score1, int score2)
+        {
+            if (score1 < 4 && score2 < 4)
+            {
+                string score1Val = "";
+                switch (score1)
+                {
+                    case 0:
+                        score1Val = "Love";
+                        break;
+                    case 1:
+                        score1Val = "Fifteen";
+                        break;
+                    case 2:
+                        score1Val = "Thirty";
+                        break;
+                    case 3:
+                        score1Val = "Forty";
+                        break;
+                    default:
+                        break;
+
+                }
+                string score2Val = "";
+                switch (score2)
+                {
+                    case 0:
+                        score2Val = "Love";
+                        break;
+                    case 1:
+                        score2Val = "Fifteen";
+                        break;
+                    case 2:
+                        score2Val = "Thirty";
+                        break;
+                    case 3:
+                        score2Val = "Forty";
+                        break;
+                    default:
+                        break;
+
+                }
+                return "P1: " + score1Val + " P2: " + score2Val;
+            }
+            else {
+                return score1 > score2 ? "P1 Won on Advantage" :"P2 Won on Advantage";
+            }
+            
+        }
 
         public void PlayGame() {
             //Method plays a game with two players, playing points until a game is won
-            while (true) {
-                Console.WriteLine("Player One has: " + _playerOne.Score.GameScore + " Points");
-                Console.WriteLine("Player Two has: " + _playerTwo.Score.GameScore + " Points");
+            string whoIsGameWinner = "";
+            do
+            {
                 PlayPoint();
-                string whoIsGameWinner = checkForGameWinner();
-                if (!string.IsNullOrWhiteSpace(whoIsGameWinner)) {
-                    //If there is a winner then write out winner, clear the Game Scores and break
-                    bool isPlayerOneWinner = _playerOne.Score.GameScore > _playerTwo.Score.GameScore;
-                    _ = isPlayerOneWinner ? _playerOne.Score.SetScore++: _playerTwo.Score.SetScore++;
-                    Console.WriteLine("Game Score is: P1- "+ _playerOne.Score.GameScore + " ~~~~~  P2- "+_playerTwo.Score.GameScore);
-                    Console.WriteLine("Set Score is: P1- " + _playerOne.Score.SetScore + " ~~~~~  P2- " + _playerTwo.Score.SetScore);
-                    _playerOne.Score.GameScore = 0;
-                    _playerTwo.Score.GameScore = 0;
-                    Console.WriteLine("Game Winner is: " + (isPlayerOneWinner?_playerOne.DisplayName:_playerTwo.DisplayName));
-                    break;
-                }
-            }
+                whoIsGameWinner = checkForGameWinner();
+            } while (string.IsNullOrWhiteSpace(whoIsGameWinner));
+                //If there is a winner then write out winner, clear the Game Scores and break
+                bool isPlayerOneWinner = _scoreKeeper.GameScore[_playerOne] > _scoreKeeper.GameScore[_playerTwo];
+                _ = isPlayerOneWinner ? _scoreKeeper.SetScore[_playerOne]++ : _scoreKeeper.SetScore[_playerTwo]++;
+                _ = isPlayerOneWinner ? _scoreKeeper.GameScore[_playerOne]-- : _scoreKeeper.GameScore[_playerTwo]--;
+                string gameScore = getGameScore(_scoreKeeper.GameScore[_playerOne], _scoreKeeper.GameScore[_playerTwo]);
+                Console.WriteLine(gameScore);
+                _scoreKeeper.GameScore[_playerOne] = 0;
+                _scoreKeeper.GameScore[_playerTwo] = 0;
+                Console.WriteLine("Game Winner is: " + (isPlayerOneWinner?_playerOne.DisplayName:_playerTwo.DisplayName));      
+            
         }
 
         public void PlayPoint() {
             Random umpire = new Random();
-            _ = umpire.Next(0, 2) == 1 ? _playerOne.Score.GameScore++ : _playerTwo.Score.GameScore++;
+            _ = umpire.Next(0, 2) == 1 ? _scoreKeeper.GameScore[_playerOne]++ : _scoreKeeper.GameScore[_playerTwo]++;
         }
 
         private string checkForGameWinner() {
-            int scoreOne = _playerOne.Score.GameScore;
-            int scoreTwo = _playerTwo.Score.GameScore;
+            int scoreOne = _scoreKeeper.GameScore[_playerOne];
+            int scoreTwo = _scoreKeeper.GameScore[_playerTwo];
             if (scoreOne > 3 && scoreTwo < 3) return "Player One wins";
             else if (scoreTwo > 3 && scoreOne < 3) return "Player Two wins";
             else if (scoreOne > 3 && (scoreOne - scoreTwo) > 1) return "Player One Wins";
@@ -105,8 +162,8 @@ namespace TennisMatch
 
         private string checkForSetWinner()
         {
-            int scoreOne = _playerOne.Score.SetScore;
-            int scoreTwo = _playerTwo.Score.SetScore;
+            int scoreOne = _scoreKeeper.SetScore[_playerOne];
+            int scoreTwo = _scoreKeeper.SetScore[_playerTwo];
             if (scoreOne > 5 && scoreTwo < 5) return "Player One wins";
             else if (scoreTwo > 5 && scoreOne < 5) return "Player Two wins";
             else if (scoreOne > 5 && (scoreOne - scoreTwo) > 1) return "Player One Wins";
@@ -116,8 +173,8 @@ namespace TennisMatch
 
         private string checkForMatchWinner()
         {
-            int scoreOne = _playerOne.Score.MatchScore;
-            int scoreTwo = _playerTwo.Score.MatchScore;
+            int scoreOne = _scoreKeeper.MatchScore[_playerOne];
+            int scoreTwo = _scoreKeeper.MatchScore[_playerTwo];
             if (scoreOne ==2 ) return "Player One wins";
             else if (scoreTwo == 2) return "Player Two wins";
             else return "";
