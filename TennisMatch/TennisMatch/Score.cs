@@ -10,5 +10,12 @@ namespace TennisMatch
     {
         public int GameScore { get; set; }
         public int SetScore { get; set; }
+        public int MatchScore { get; set; }
+
+        public Score() {
+            GameScore = 0;
+            SetScore = 0;
+            MatchScore = 0;
+        }
     }
 }

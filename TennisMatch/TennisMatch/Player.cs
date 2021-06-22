@@ -12,11 +12,14 @@ namespace TennisMatch
 
         public Score Score { get; set; }
 
+        public string WinStatus { get; set; }
+
         public Player(string displayName) {
             if (string.IsNullOrWhiteSpace(displayName)) {
                 throw new ArgumentNullException("Player Names must have a value");
             }
             this.DisplayName= displayName;
+            Score = new Score();
         }
     }
 }
